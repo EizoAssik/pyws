@@ -2,7 +2,7 @@
 from wsbuiltin import PUSH, COPY, SWAP, POP, DUP, SKIP
 from wsbuiltin import RETRIEVE, STORE
 from wsbuiltin import ADD, SUB, MUL, DIV, MOD
-from wsbuiltin import MARK, CALL, JUMP, JS, JZ, RETURN, END
+from wsbuiltin import MARK, CALL, JUMP, JS, JZ, RET, END
 from wsbuiltin import PNUM, PCHR, RCHR, RNUM
 from wsbuiltin import NUMBER, LABEL
 
@@ -96,7 +96,7 @@ FC = {
         {
             "S": (JZ, 1, LABEL),
             "T": (JS, 1, LABEL),
-            "L": (RETURN, 0, None),
+            "L": (RET, 0, None),
         },
         None],
     "L": [

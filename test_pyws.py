@@ -1,18 +1,18 @@
 # from lexer import Lexer
 import style
 from wsbuiltin import ADD, PUSH, SUB
-from wslexer import Lexer
+from wslexer import Reader
 from pyws import wscompiler, disassembler
 
 
 def test_source():
-    assert 'SS' == ''.join(Lexer('a s ', style.ORIGIN).code)
-    assert 'LS' == ''.join(Lexer('aLsS').code)
+    assert 'SS' == ''.join(Reader('a s ', style.ORIGIN).code)
+    assert 'LS' == ''.join(Reader('aLsS').code)
 
 
 def test_iter():
-    assert 'SS' == ''.join(Lexer('a s ', style.ORIGIN).__iter__())
-    assert 'LS' == ''.join(Lexer('aLsS').__iter__())
+    assert 'SS' == ''.join(Reader('a s ', style.ORIGIN).__iter__())
+    assert 'LS' == ''.join(Reader('aLsS').__iter__())
 
 
 def test_compiler():

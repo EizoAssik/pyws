@@ -1,10 +1,27 @@
 # encoding=utf-8
 
+import os
 import wsbuiltin
 from wsbuiltin import FlowOperation, LABEL, NUMBER
 
 items = [getattr(wsbuiltin, name) for name in dir(wsbuiltin)]
 ASSEMBLER_TABLE = {c.NAME: c for c in items if hasattr(c, 'NAME')}
+
+
+class AssemblerReader(object):
+    def __init__(self, source):
+        if not isinstance(source, str):
+            raise TypeError("{} is neither a string containing source code "
+                            "nor a path to source file".format(str(source)))
+        if os.path.exists(source):
+            with open(source) as sf:
+                source = sf.readlines()
+        else:
+            source = source.splitlines()
+        self.source = source
+
+    def __iter__(self):
+        return iter(self.source)
 
 
 class Assembler(object):

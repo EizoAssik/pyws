@@ -24,10 +24,10 @@ class PUSHS(SyntaxSugar):
             ints = eval(arg)
             if rev:
                 ints = ints[::-1]
-            return list(map(lambda i: 'PUSH {}'.format(i), ints))
+            return list(map(lambda i: ('PUSH', str(i)), ints))
         if re.match(r"\".*\"", arg):
             arg = arg.strip('\"')
             if rev:
                 arg = arg[::-1]
-            return list(map(lambda i: 'PUSH \'{}'.format(i), arg))
+            return list(map(lambda i: ('PUSH', '\'' + i), arg))
         raise SyntaxError("Cannot expand PUSHS {}".format(arg))

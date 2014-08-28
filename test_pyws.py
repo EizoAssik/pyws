@@ -1,9 +1,8 @@
 # from lexer import Lexer
 import style
-from wsbuiltin import ADD, PUSH, SUB
-import wsbuiltin
+from wsbuiltin import ADD, PUSH, SUB, NUMBER, LABEL
 from wslexer import Reader
-from pyws import wscompiler, disassembler
+from pyws import compiler, disassembler, assembler
 from engine import PYWSEngine
 
 
@@ -18,31 +17,47 @@ def test_iter():
 
 
 def test_compiler():
-    assert [ADD()] == wscompiler('TSSS')
-    assert [ADD(), SUB()] == wscompiler('TSSSTSST')
-    assert [PUSH(wsbuiltin.NUMBER('STS'))] == wscompiler('SSSTSL')
+    assert [ADD()] == compiler('TSSS')
+    assert [ADD(), SUB()] == compiler('TSSSTSST')
+    assert [PUSH(NUMBER('STS'))] == compiler('SSSTSL')
 
 
 def test_repr():
-    assert "PUSH <NUMBER 011/3>" == repr(PUSH(wsbuiltin.NUMBER('STT')))
+    assert "PUSH <NUMBER 011/3>" == repr(PUSH(NUMBER('STT')))
 
 
 def test_disassembler():
-    assert "ADDSUB" == disassembler(wscompiler("TSSSTSST"))
-    assert "ADD-SUB" == disassembler(wscompiler("TSSSTSST"), sep='-')
+    assert "ADDSUB" == disassembler(compiler("TSSSTSST"))
+    assert "ADD-SUB" == disassembler(compiler("TSSSTSST"), sep='-')
 
 
 def test_literal():
-    assert "<NUMBER 1001/-6>" == repr(wsbuiltin.NUMBER('TSST'))
-    assert "<NUMBER 01011/11>" == repr(wsbuiltin.NUMBER('STSTT'))
-    assert "<LABEL 1001/9>" == repr(wsbuiltin.LABEL('TSST'))
-    assert 3 == wsbuiltin.NUMBER("ST") + 2
-    assert 0 == 1 - wsbuiltin.NUMBER("ST")
-    assert 6 == wsbuiltin.NUMBER("STT") * wsbuiltin.NUMBER("STS")
-    assert 2 == 5 // wsbuiltin.NUMBER("STS")
-    assert 9 == 10 + wsbuiltin.NUMBER("TS")
-    assert 1 == 3 % wsbuiltin.NUMBER("STS")
+    assert "<NUMBER 1001/-6>" == repr(NUMBER('TSST'))
+    assert "<NUMBER 01011/11>" == repr(NUMBER('STSTT'))
+    assert "<LABEL 1001/9>" == repr(LABEL('TSST'))
+    assert 3 == NUMBER("ST") + 2
+    assert 0 == 1 - NUMBER("ST")
+    assert 6 == NUMBER("STT") * NUMBER("STS")
+    assert 2 == 5 // NUMBER("STS")
+    assert 9 == 10 + NUMBER("TS")
+    assert 1 == 3 % NUMBER("STS")
+    assert hash(NUMBER("STS")) == hash(NUMBER("STS"))
+    assert NUMBER("STSS") == NUMBER("STSS")
+    assert NUMBER("SSTS") == NUMBER("STS")
 
+
+def test_assembler():
+    assert "SS;STSTSL" == assembler("PUSH 10")
+
+def ws_run(src: str) -> ([], {}):
+    return PYWSEngine(compiler(src)).run()
 
 def test_engine():
-    assert [4], {} == PYWSEngine(wscompiler("SSSTLSSSTTLTSSS")).run()
+    # PUSH 01 ; PUSH 03 ; ADD
+    assert ([4], {}) == ws_run("SSSTL;SSSTTL;TSSS")
+    # PUSH 01 ; PUSH 02 ; STORE
+    assert ([], {NUMBER("ST"): NUMBER("STS")}) == ws_run("SSSTL;SSSTSL;TTS")
+    # PUSH 03 ; PUSH 01 ; STORE ; PUSH 03 ; RETRIEVE
+    assert ([NUMBER("ST")], {NUMBER("STT"): NUMBER("ST")}) == ws_run("SSSTTL;SSSTL;TTS;SSSTTL;TTT")
+    # PUSH 01 ; TOP-COPY ; STORE ;
+    assert ([NUMBER("STTSS")], {}) ==  ws_run('SS;STL;SS;STSL;TSSS;SLL;SS;STTL;SS;STSSL;TSSL')

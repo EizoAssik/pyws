@@ -405,3 +405,92 @@ class END(FlowOperation):
     def __call__(self, stack, heap, labels, engine: PYWSEngine, *args,
                  **kwargs):
         engine.end()
+
+
+class WSLiteral(object):
+    NAME = "LITERAL"
+
+    def __init__(self, literal: str):
+        self.literal = literal.translate({ord('S'): '0', ord('T'): '1'})
+        self.val = self.eval_literal()
+
+    def __hash__(self):
+        return hash(self.literal)
+
+    def __eq__(self, other):
+        if type(self) != type(other):
+            return False
+        if self.literal != other.literal:
+            return False
+        if self.val != other.val:
+            return False
+        return True
+
+    def __repr__(self):
+        return '<{} {}/{}>'.format(self.NAME,
+                                   self.literal,
+                                   self.val)
+
+    def __str__(self):
+        return self.__repr__()
+
+    def eval_literal(self):
+        return int(self.literal, base=2)
+
+
+class LABEL(WSLiteral):
+    NAME = "LABEL"
+
+
+class NUMBER(WSLiteral):
+    NAME = "NUMBER"
+
+    def eval_literal(self):
+        negative = self.literal[0] == '1'
+        val = self.literal[1:]
+        if negative:
+            val = val.translate({ord('0'): '1', ord('1'): '0'})
+        return (-1 if negative else 1) * int(val, base=2)
+
+    def __int__(self):
+        return self.val
+
+    def __float__(self):
+        return float(self.val)
+
+    def __add__(self, other):
+        return other.__add__(self.val)
+
+    def __sub__(self, other):
+        return other.__sub__(self.val)
+
+    def __mul__(self, other):
+        return other.__mul__(self.val)
+
+    def __truediv__(self, other):
+        return other.__truediv__(self.val)
+
+    def __floordiv__(self, other):
+        return other.__floordiv__(self.val)
+
+    def __mod__(self, other):
+        return other.__mod__(self.val)
+
+    def __radd__(self, other):
+        return other.__add__(self.val)
+
+    def __rsub__(self, other):
+        return other.__sub__(self.val)
+
+    def __rmul__(self, other):
+        return other.__mul__(self.val)
+
+    def __rtruediv__(self, other):
+        return other.__truediv__(self.val)
+
+    def __rfloordiv__(self, other):
+        return other.__floordiv__(self.val)
+
+    def __rmod__(self, other):
+        return other.__mod__(self.val)
+

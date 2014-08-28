@@ -1,11 +1,16 @@
 # encoding=utf-8
 
 import os
+
 import wsbuiltin
 from wsbuiltin import FlowOperation, LABEL, NUMBER
+import sugar
 
-items = [getattr(wsbuiltin, name) for name in dir(wsbuiltin)]
-ASSEMBLER_TABLE = {c.NAME: c for c in items if hasattr(c, 'NAME')}
+
+builtin_items = [getattr(wsbuiltin, name) for name in dir(wsbuiltin)]
+ASSEMBLER_TABLE = {c.NAME: c for c in builtin_items if hasattr(c, 'NAME')}
+sugar_items = [getattr(sugar, name) for name in dir(sugar)]
+SUGAR_TABLE = {c.NAME: c for c in sugar_items if hasattr(c, 'NAME')}
 
 
 class AssemblerReader(object):
@@ -27,16 +32,25 @@ class AssemblerReader(object):
 class Assembler(object):
     def __init__(self, reader, arg_sep):
         self.reader = reader
+        self.source = reader.source
         self.arg_sep = arg_sep
-        self.src, self.tokens = self.tokenize()
+        self.src, self.ins = self.tokenize()
 
     def tokenize(self):
         tokens = []
         src = []
-        for line in self.reader:
+        pos = 0
+        while pos < len(self.source):
+            line = self.source[pos]
             if line.lstrip().startswith('#'):
                 continue
-            ins, *remain = line.split()
+            ins, *remain = line.split(maxsplit=1)
+            if ins in SUGAR_TABLE:
+                expanded_src = SUGAR_TABLE[ins].expand(remain[0])
+                for eline in reversed(expanded_src):
+                    self.source.insert(pos + 1, eline)
+                pos += 1
+                continue
             if ins not in ASSEMBLER_TABLE:
                 raise SyntaxError
             ins = ASSEMBLER_TABLE[ins]
@@ -52,6 +66,7 @@ class Assembler(object):
             else:
                 tokens.append(ins())
                 src.append(ins.SRC)
+            pos += 1
         return src, tokens
 
     @staticmethod
@@ -60,6 +75,8 @@ class Assembler(object):
         literal = remains[0]
         if literal.startswith('b'):
             literal = literal[1:]
+        if literal.startswith('\''):
+            literal = bin(ord(literal[1]))[2:]
         elif literal.startswith('0x'):
             literal = bin(int(literal[2:], base=16))[2:]
         else:

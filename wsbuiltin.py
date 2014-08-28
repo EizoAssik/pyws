@@ -354,6 +354,20 @@ class CALL(FlowOperation):
                  **kwargs):
         engine.call(self.label)
 
+class PYFN(FlowOperation):
+    """
+    L-[LF][Space] Call Python function
+    """
+    NAME = "PYFN"
+    SRC = "LLS"
+    ARGS = 1
+
+    def __init__(self, label):
+        self.label = label
+
+    def __call__(self, stack, heap, labels, engine, *args, **kwargs):
+        engine.foreign(self.label)
+
 
 class JUMP(FlowOperation):
     """

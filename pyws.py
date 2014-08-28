@@ -5,8 +5,8 @@ import style as wsstyle
 
 from wslexer import Reader, Lexer
 from assembler import Assembler, AssemblerReader
-from engine import PYWSEngine
-from wsbuiltin import WSLiteral
+from engine import PYWSEngine, PYFN_MAP
+from wsbuiltin import WSLiteral, LABEL
 
 
 def compiler(src: str, style: dict=wsstyle.STL, strict=False):
@@ -56,7 +56,7 @@ def main():
         print('Compile result:')
         print(code)
         stack, heap = PYWSEngine(ins).run()
-        print('=' * 16)
+        print('\n' + '=' * 16)
         print('STACK: ', stack)
         print('HEAP: ', heap)
     else:
@@ -69,6 +69,40 @@ def main():
         print('=' * 16)
         print('STACK: ', stack)
         print('HEAP: ', heap)
+
+
+def wsfunction(style=wsstyle.STL, strict=False, debug=False,
+               stack_only=False, heap_only=False, stack_heap=False,
+               ret_top=True):
+    def _wsdef(func):
+        src = func.__doc__
+        ins = compiler(src, style, strict)
+
+        def _wsfunc(*args, **kwargs):
+            engine = PYWSEngine(ins, stack=args, heap=kwargs)
+            stack, heap = engine.run(debug=debug)
+            if stack_only:
+                return stack
+            if heap_only:
+                return heap
+            if stack_heap:
+                return stack, heap
+            if ret_top:
+                return stack.pop()
+
+        return _wsfunc
+
+    return _wsdef
+
+
+def wsmark(label):
+    l = LABEL(label)
+
+    def _wsmark(func):
+        PYFN_MAP[l] = func
+        return func
+
+    return _wsmark
 
 
 if __name__ == '__main__':

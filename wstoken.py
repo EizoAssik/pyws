@@ -1,5 +1,5 @@
 # encoding=utf-8
-from wsbuiltin import PUSH, COPY, SWAP, POP, DUP, SKIP
+from wsbuiltin import PUSH, COPY, SWAP, POP, DUP, SKIP, PYFN
 from wsbuiltin import RETRIEVE, STORE
 from wsbuiltin import ADD, SUB, MUL, DIV, MOD
 from wsbuiltin import MARK, CALL, JUMP, JS, JZ, RET, END
@@ -101,6 +101,7 @@ FC = {
         None],
     "L": [
         {
+            "S": (PYFN, 1, LABEL),
             "L": (END, 0, None)
         },
         None]

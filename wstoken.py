@@ -4,14 +4,8 @@ from wsbuiltin import RETRIEVE, STORE
 from wsbuiltin import ADD, SUB, MUL, DIV, MOD
 from wsbuiltin import MARK, CALL, JUMP, JS, JZ, RETURN, END
 from wsbuiltin import PRINT_NUM, PRINT_CHAR, READ_CHAR_TO_HEAP, READ_NUM_TO_HEAP
+from wsbuiltin import NUMBER, LABEL
 
-
-class LABEL:
-    pass
-
-
-class NUMBER:
-    pass
 
 # Stack Operation
 # IMP: [Space]
@@ -19,7 +13,7 @@ class NUMBER:
 # [Space]         Number    Push the number onto the stack
 # [LF][Space]       -       Duplicate the top item on the stack
 # [Tab][Space]    Number    Copy the nth item on the stack given by the argument
-# onto the top of the stack
+#                           onto the top of the stack
 # [LF][Tab]         -       Swap the top two items on the stack
 # [LF][LF]          -       Discard the top item on the stack
 # [Tab][LF]       Number    Slide n items off the stack, keeping the top item
@@ -117,7 +111,7 @@ FC = {
 # [Space][Space]   Output the character at the top of the stack
 # [Space][Tab]     Output the number at the top of the stack
 # [Tab][Space]     Read a character and place it in the location
-# given by the top of the stack
+#                  given by the top of the stack
 # [Tab][Tab]       Read a number and place it in the location
 #                  given by the top of the stack
 
@@ -133,7 +127,6 @@ IO = {
             "S": (READ_CHAR_TO_HEAP, 0, None),
             "T": (READ_NUM_TO_HEAP, 0, None),
         },
-
         None],
     "L": [None, None]
 }

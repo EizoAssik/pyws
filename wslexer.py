@@ -1,7 +1,7 @@
 # encoding=utf-8
 import os
 from style import STL
-from wstoken import IMP, LABEL, NUMBER
+from wstoken import IMP, END
 
 
 class Reader(object):
@@ -32,29 +32,52 @@ class Lexer(object):
     This is the lexer for WhiteSpace
     """
 
-    def __init__(self, reader: Reader):
+    def __init__(self, reader: Reader, strict=False):
         self.reader = reader
+        self.strict = strict
         self.ins = self.lex()
 
     def lex(self):
+        found_end = False
         status = IMP
-        label_buffer = []
-        num_buffer = []
-        literal = True
+        literal_buffer = []
+        literal = None
         ins = []
         for c in self.reader:
+            if literal is not None:
+                if c != 'L':
+                    literal_buffer.append(c)
+                else:
+                    ins.append(literal(''.join(literal_buffer)))
+                    literal_buffer.clear()
+                    literal = None
+                continue
             if isinstance(status, dict):
                 result = status[c]
                 if isinstance(result, tuple) and len(result) == 3:
                     cls, args, literal = result
+                    if cls is END:
+                        found_end = True
                     ins.append(cls)
                     status = IMP
-                    continue
                 else:
                     next_level, leaf = result
-                    status = leaf if leaf else next_level
+                    if leaf and not isinstance(leaf, dict):
+                        cls, args, literal = leaf
+                        if cls is END:
+                            found_end = True
+                        ins.append(cls)
+                        status = IMP
+                    elif leaf and isinstance(leaf, dict):
+                        status = leaf
+                    else:
+                        status = next_level
             else:
                 raise SyntaxError
+        if self.strict and any((literal_buffer, literal,
+                                status != IMP,
+                                not found_end)):
+            raise SyntaxError("Not end at L-[LF][LF] END")
         return ins
 
     def __iter__(self):

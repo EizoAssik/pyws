@@ -5,8 +5,13 @@ from wsbuiltin import ADD, SUB, MUL, DIV, MOD
 from wsbuiltin import MARK, CALL, JUMP, JS, JZ, RETURN, END
 from wsbuiltin import PRINT_NUM, PRINT_CHAR, READ_CHAR_TO_HEAP, READ_NUM_TO_HEAP
 
-NUMBER = "NUMBER"
-LABEL = "LABEL"
+
+class LABEL:
+    pass
+
+
+class NUMBER:
+    pass
 
 # Stack Operation
 # IMP: [Space]
@@ -112,7 +117,7 @@ FC = {
 # [Space][Space]   Output the character at the top of the stack
 # [Space][Tab]     Output the number at the top of the stack
 # [Tab][Space]     Read a character and place it in the location
-#                  given by the top of the stack
+# given by the top of the stack
 # [Tab][Tab]       Read a number and place it in the location
 #                  given by the top of the stack
 

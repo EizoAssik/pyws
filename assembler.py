@@ -23,10 +23,29 @@ class AssemblerReader(object):
                 source = sf.readlines()
         else:
             source = source.splitlines()
-        self.source = source
+        self.source = AssemblerReader.preprocess(source)
 
     def __iter__(self):
         return iter(self.source)
+
+    @classmethod
+    def preprocess(cls, raw):
+        src = []
+        for line in raw:
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+            ins, *remains = line.split(sep=' ', maxsplit=1)
+            if remains:
+                if '#' in remains:
+                    remains = remains[:remains.index('#')]
+                remains = list(filter(lambda x: not x.startswith('#'), remains))
+                remain = ' '.join(remains)
+            else:
+                remain = None
+            src.append((ins, remain))
+
+        return src
 
 
 class Assembler(object):
@@ -41,12 +60,9 @@ class Assembler(object):
         src = []
         pos = 0
         while pos < len(self.source):
-            line = self.source[pos]
-            if line.lstrip().startswith('#'):
-                continue
-            ins, *remain = line.split(maxsplit=1)
+            ins, remain = self.source[pos]
             if ins in SUGAR_TABLE:
-                expanded_src = SUGAR_TABLE[ins].expand(remain[0])
+                expanded_src = SUGAR_TABLE[ins].expand(remain)
                 for eline in reversed(expanded_src):
                     self.source.insert(pos + 1, eline)
                 pos += 1
@@ -70,9 +86,8 @@ class Assembler(object):
         return src, tokens
 
     @staticmethod
-    def literal_number(remains):
+    def literal_number(literal):
         negative = False
-        literal = remains[0]
         if literal.startswith('b'):
             literal = literal[1:]
         if literal.startswith('\''):
@@ -91,9 +106,8 @@ class Assembler(object):
         return literal.translate({ord('0'): 'S', ord('1'): 'T'})
 
     @staticmethod
-    def literal_label(remains):
+    def literal_label(literal):
         negative = False
-        literal = remains[0]
         if literal.startswith('b'):
             literal = literal[1:]
         elif literal.startswith('0x'):

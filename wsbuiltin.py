@@ -27,6 +27,24 @@ class WSOperation:
     def __str__(self):
         return self.__str__()
 
+    def __eq__(self, other):
+        if type(self) != type(other):
+            return False
+        if self.NAME != other.NAME:
+            return False
+        if self.ARGS != other.ARGS:
+            return False
+        self_names = self.__init__.__code__.co_varnames
+        other_names = other.__init__.__code__.co_varnames
+        if self_names != other_names:
+            return False
+        self_vars = [getattr(self, n) for n in self_names if hasattr(self, n)]
+        other_vars = [getattr(other, n) for n in self_names if
+                      hasattr(other, n)]
+        if self_vars != other_vars:
+            return False
+        return True
+
 
 class StackOperation(WSOperation):
     """

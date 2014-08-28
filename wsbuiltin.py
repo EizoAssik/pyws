@@ -80,23 +80,23 @@ class POP(StackOperation):
         stack.pop()
 
 
-class TOP_COPY(StackOperation):
+class DUP(StackOperation):
     """
     S-[LF][Space] Duplicate the top item on the stack
     """
-    NAME = "TOP-COPY"
+    NAME = "DUP"
     SRC = "SLS"
 
     def __call__(self, stack, heap, labels, engine, *args, **kwargs):
         stack.append(stack[-1])
 
 
-class NTH_COPY(StackOperation):
+class COPY(StackOperation):
     """
     S-[Tab][Space] Copy the nth item on the stack given by the argument
     onto the top of the stack
     """
-    NAME = "NTH-COPY"
+    NAME = "COPY"
     SRC = "STS"
     ARGS = 1
 
@@ -107,11 +107,11 @@ class NTH_COPY(StackOperation):
         stack.append(stack[self.index])
 
 
-class STACK_SKIP(StackOperation):
+class SKIP(StackOperation):
     """
     S-[Tab][LF] Slide n items off the stack, keeping the top item
     """
-    NAME = "STACK-SKIP"
+    NAME = "SKIP"
     SRC = "STL"
 
     def __init__(self, n):
@@ -127,11 +127,11 @@ class STACK_SKIP(StackOperation):
             stack.append(top)
 
 
-class TOP_SWAP(StackOperation):
+class SWAP(StackOperation):
     """
     S-[LF][Tab] Swap the top two items on the stack
     """
-    NAME = "TOP-SWAP"
+    NAME = "SWAP"
     SRC = "SLT"
 
     def __call__(self, stack, heap, *args, **kwargs):
@@ -261,35 +261,35 @@ class IOOperation(WSOperation):
     NAME = "IO"
 
 
-class PRINT_CHAR(IOOperation):
+class PCHR(IOOperation):
     """
     TL-[Space][Space] Output the character at the top of the stack
     """
-    NAME = "PRINT-CHAR"
+    NAME = "PCHR"
     SRC = "TLSS"
 
     def __call__(self, stack, heap, labels, engine, *args, **kwargs):
         sys.stdout.write(chr(stack.pop()))
 
 
-class PRINT_NUM(IOOperation):
+class PNUM(IOOperation):
     """
     TL-[Space][Tab] Output the number at the top of the stack
     """
-    NAME = "PRINT-NUM"
+    NAME = "PNUM"
     SRC = "TLST"
 
     def __call__(self, stack, heap, labels, engine, *args, **kwargs):
         sys.stdout.write(str(stack.pop()))
 
 
-class READ_CHAR_TO_HEAP(IOOperation):
+class RCHR(IOOperation):
     """
     TL-[Tab][Space] Read a character and place it in the location
     given by the top of the stack
     """
 
-    NAME = "READ-CHAR-TO-HEAP"
+    NAME = "RCHR"
     SRC = "TLTS"
 
     def __call__(self, stack, heap, labels, engine, *args, **kwargs):
@@ -299,13 +299,13 @@ class READ_CHAR_TO_HEAP(IOOperation):
         heap[key] = val
 
 
-class READ_NUM_TO_HEAP(IOOperation):
+class RNUM(IOOperation):
     """
     TL-[Tab][Tab] Read a number and place it in the location
     given by the top of the stack
     """
 
-    NAME = "READ-NUM-TO-HEAP"
+    NAME = "RNUM"
     SRC = "TLTT"
 
     def __call__(self, stack, heap, labels, engine, *args, **kwargs):

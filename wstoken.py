@@ -1,35 +1,35 @@
 # encoding=utf-8
-from wsbuiltin import PUSH, NTH_COPY, TOP_SWAP, POP, TOP_COPY, STACK_SKIP
+from wsbuiltin import PUSH, COPY, SWAP, POP, DUP, SKIP
 from wsbuiltin import RETRIEVE, STORE
 from wsbuiltin import ADD, SUB, MUL, DIV, MOD
 from wsbuiltin import MARK, CALL, JUMP, JS, JZ, RETURN, END
-from wsbuiltin import PRINT_NUM, PRINT_CHAR, READ_CHAR_TO_HEAP, READ_NUM_TO_HEAP
+from wsbuiltin import PNUM, PCHR, RCHR, RNUM
 from wsbuiltin import NUMBER, LABEL
 
 
 # Stack Operation
 # IMP: [Space]
-# Command       Parameters  Meaning
-# [Space]         Number    Push the number onto the stack
-# [LF][Space]       -       Duplicate the top item on the stack
-# [Tab][Space]    Number    Copy the nth item on the stack given by the argument
-#                           onto the top of the stack
-# [LF][Tab]         -       Swap the top two items on the stack
-# [LF][LF]          -       Discard the top item on the stack
-# [Tab][LF]       Number    Slide n items off the stack, keeping the top item
+# Command      Name Parameters Meaning
+# [Space]      PUSH   Number   Push the number onto the stack
+# [LF][Space]  DUP      -      Duplicate the top item on the stack
+# [Tab][Space] COPY   Number   Copy the nth item on the stack given by the
+#                              argument onto the top of the stack
+# [LF][Tab]    SWAP     -      Swap the top two items on the stack
+# [LF][LF]     POP      -      Discard the top item on the stack
+# [Tab][LF]    SKIP   Number   Slide n items off the stack, keeping the top item
 
 SOP = {
     "S": [None, (PUSH, 1, NUMBER)],
     "T": [
         {
-            "S": (NTH_COPY, 1, NUMBER),
-            "L": (STACK_SKIP, 1, NUMBER)
+            "S": (COPY, 1, NUMBER),
+            "L": (SKIP, 1, NUMBER)
         },
         None],
     "L": [
         {
-            "S": (TOP_COPY, 0, None),
-            "T": (TOP_SWAP, 0, None),
+            "S": (DUP, 0, None),
+            "T": (SWAP, 0, None),
             "L": (POP, 0, None)
         },
         None]
@@ -38,9 +38,9 @@ SOP = {
 
 # Heap Operation
 # IMP: [Tab][Tab]
-# Command     Meaning
-# [Space]     Store
-# [Tab]       Retrieve
+# Command NAME     Meaning
+# [Space] STORE    Store
+# [Tab]   RETRIEVE Retrieve
 
 HOP = {"S": [None, (STORE, 0, None)],
        "T": [None, (RETRIEVE, 0, None)],
@@ -48,12 +48,12 @@ HOP = {"S": [None, (STORE, 0, None)],
 
 # Arithmetic Operation
 # IMP: [Tab][Space]
-# Command          Meaning
-# [Space][Space]   Addition
-# [Space][Tab]     Subtraction
-# [Space][LF]      Multiplication
-# [Tab][Space]     Integer Division
-# [Tab][Tab]       Modulo
+# Command        NAME Meaning
+# [Space][Space] ADD  Addition
+# [Space][Tab]   SUB  Subtraction
+# [Space][LF]    MUL  Multiplication
+# [Tab][Space]   DIV  Integer Division
+# [Tab][Tab]     MOD  Modulo
 
 AR = {
     "S": [
@@ -73,15 +73,16 @@ AR = {
 
 # Control Flow
 # IMP: [LF]
-# Command        Parameters  Meaning
-# [Space][Space]   Label     Mark a location in the program
-# [Space][Tab]     Label     Call a subroutine
-# [Space][LF]      Label     Jump unconditionally to a label
-# [Tab][Space]     Label     Jump to a label if the top of the stack is zero
-# [Tab][Tab]       Label     Jump to a label if the top of the stack is negative
-# [Tab][LF]          -       End a subroutine and transfer control back to the
-#                            caller
-# [LF][LF]           -       End the program
+# Command        NAME Parameters Meaning
+# [Space][Space] MARK  Label     Mark a location in the program
+# [Space][Tab]   CALL  Label     Call a subroutine
+# [Space][LF]    JUMP  Label     Jump unconditionally to a label
+# [Tab][Space]   JZ    Label     Jump to a label if the top of the stack is zero
+# [Tab][Tab]     JS    Label     Jump to a label if the top of the stack is
+#                                negative
+# [Tab][LF]      RET     -       End a subroutine and transfer control back to
+#                                the caller
+# [LF][LF]       END     -       End the program
 
 FC = {
     "S": [
@@ -107,25 +108,25 @@ FC = {
 
 # IO
 # IMP: [Tab][LF]
-# Command          Meaning
-# [Space][Space]   Output the character at the top of the stack
-# [Space][Tab]     Output the number at the top of the stack
-# [Tab][Space]     Read a character and place it in the location
-#                  given by the top of the stack
-# [Tab][Tab]       Read a number and place it in the location
-#                  given by the top of the stack
+# Command        NAME  Meaning
+# [Space][Space] PCHR  Output the character at the top of the stack
+# [Space][Tab]   PNUM  Output the number at the top of the stack
+# [Tab][Space]   RCHR  Read a character and place it in the location
+#                      given by the top of the stack
+# [Tab][Tab]     RNUM  Read a number and place it in the location
+#                      given by the top of the stack
 
 IO = {
     "S": [
         {
-            "S": (PRINT_CHAR, 0, None),
-            "T": (PRINT_NUM, 0, None),
+            "S": (PCHR, 0, None),
+            "T": (PNUM, 0, None),
         },
         None],
     "T": [
         {
-            "S": (READ_CHAR_TO_HEAP, 0, None),
-            "T": (READ_NUM_TO_HEAP, 0, None),
+            "S": (RCHR, 0, None),
+            "T": (RNUM, 0, None),
         },
         None],
     "L": [None, None]

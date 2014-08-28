@@ -1,11 +1,12 @@
 # encoding=utf-8
 import os
 from style import STL
+from wstoken import IMP
 
 
-class Lexer(object):
+class Reader(object):
     """
-    This is the lexer for WhiteSpace.
+    This is the source code reader for WhiteSpace.
     """
 
     def __init__(self, source: str, style: dict=STL):
@@ -24,3 +25,37 @@ class Lexer(object):
 
     def __iter__(self):
         return iter(self.code)
+
+
+class Lexer(object):
+    """
+    This is the lexer for WhiteSpace
+    """
+
+    def __init__(self, reader: Reader):
+        self.reader = reader
+        self.ins = self.lex()
+
+    def lex(self):
+        status = IMP
+        label_buffer = []
+        num_buffer = []
+        literal = True
+        ins = []
+        for c in self.reader:
+            if isinstance(status, dict):
+                result = status[c]
+                if isinstance(result, tuple) and len(result) == 3:
+                    cls, args, literal = result
+                    ins.append(cls)
+                    status = IMP
+                    continue
+                else:
+                    next_level, leaf = result
+                    status = leaf if leaf else next_level
+            else:
+                raise SyntaxError
+        return ins
+
+    def __iter__(self):
+        return iter(self.ins)

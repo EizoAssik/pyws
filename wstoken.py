@@ -14,13 +14,13 @@ LABEL = "LABEL"
 # [Space]         Number    Push the number onto the stack
 # [LF][Space]       -       Duplicate the top item on the stack
 # [Tab][Space]    Number    Copy the nth item on the stack given by the argument
-#                           onto the top of the stack
+# onto the top of the stack
 # [LF][Tab]         -       Swap the top two items on the stack
 # [LF][LF]          -       Discard the top item on the stack
 # [Tab][LF]       Number    Slide n items off the stack, keeping the top item
 
 SOP = {
-    "S": [{}, (PUSH, 1, NUMBER)],
+    "S": [None, (PUSH, 1, NUMBER)],
     "T": [
         {
             "S": (NTH_COPY, 1, NUMBER),
@@ -43,9 +43,9 @@ SOP = {
 # [Space]     Store
 # [Tab]       Retrieve
 
-HOP = {"S": [{}, (STORE, 0, None)],
-       "T": [{}, (RETRIEVE, 0, None)],
-       "L": [{}, ]}
+HOP = {"S": [None, (STORE, 0, None)],
+       "T": [None, (RETRIEVE, 0, None)],
+       "L": [None, None]}
 
 # Arithmetic Operation
 # IMP: [Tab][Space]
@@ -70,7 +70,7 @@ AR = {
             "T": (MOD, 0, None),
         },
         None],
-    "L": [{}, None]}
+    "L": [None, None]}
 
 # Control Flow
 # IMP: [LF]
@@ -130,12 +130,12 @@ IO = {
         },
 
         None],
-    "L": [{}, None]
+    "L": [None, None]
 }
 
 IMP = {
-    "S": [{}, SOP],
-    "T": [{"S": AR, "T": HOP, "L": IO}, None],
-    "L": [{}, FC]
+    "S": [None, SOP],
+    "T": [{"S": [AR, None], "T": [HOP, None], "L": [IO, None]}, None],
+    "L": [None, FC]
 }
 

@@ -4,7 +4,6 @@ All builtin operations defined in WhiteSpace
 """
 import operator
 import sys
-from engine import PYWSEngine
 
 
 class WSOperation:
@@ -12,7 +11,7 @@ class WSOperation:
     SRC = ""
     ARGS = 0
 
-    def __call__(self, stack, heap, labels, engine: PYWSEngine, *args,
+    def __call__(self, stack, heap, labels, engine, *args,
                  **kwargs):
         pass
 
@@ -295,7 +294,7 @@ class RCHR(IOOperation):
     def __call__(self, stack, heap, labels, engine, *args, **kwargs):
         key = stack.pop()
         s = input()
-        val = int(s)
+        val = ord(s[0])
         heap[key] = val
 
 
@@ -351,7 +350,7 @@ class CALL(FlowOperation):
     def __init__(self, label):
         self.label = label
 
-    def __call__(self, stack, heap, labels, engine: PYWSEngine, *args,
+    def __call__(self, stack, heap, labels, engine, *args,
                  **kwargs):
         engine.call(self.label)
 
@@ -367,7 +366,7 @@ class JUMP(FlowOperation):
     def __init__(self, label):
         self.label = label
 
-    def __call__(self, stack, heap, labels, engine: PYWSEngine, *args,
+    def __call__(self, stack, heap, labels, engine, *args,
                  **kwargs):
         engine.pc = labels[self.label]
 
@@ -383,7 +382,7 @@ class JS(FlowOperation):
     def __init__(self, label):
         self.label = label
 
-    def __call__(self, stack, heap, labels, engine: PYWSEngine, *args,
+    def __call__(self, stack, heap, labels, engine, *args,
                  **kwargs):
         top = stack.pop()
         if top < 0:
@@ -401,21 +400,21 @@ class JZ(FlowOperation):
     def __init__(self, label):
         self.label = label
 
-    def __call__(self, stack, heap, labels, engine: PYWSEngine, *args,
+    def __call__(self, stack, heap, labels, engine, *args,
                  **kwargs):
         top = stack.pop()
         if top == 0:
             engine.pc = labels[self.label]
 
 
-class RETURN(FlowOperation):
+class RET(FlowOperation):
     """
     L-[Tab][LF] End a subroutine and transfer control back to the caller
     """
-    NAME = "RETURN"
+    NAME = "RET"
     SRC = "LTL"
 
-    def __call__(self, stack, heap, labels, engine: PYWSEngine, *args,
+    def __call__(self, stack, heap, labels, engine, *args,
                  **kwargs):
         engine.ret()
 
@@ -427,7 +426,7 @@ class END(FlowOperation):
     NAME = "END"
     SRC = "LLL"
 
-    def __call__(self, stack, heap, labels, engine: PYWSEngine, *args,
+    def __call__(self, stack, heap, labels, engine, *args,
                  **kwargs):
         engine.end()
 

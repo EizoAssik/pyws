@@ -1,7 +1,8 @@
 # encoding=utf-8
 import os
 from style import STL
-from wstoken import IMP, END
+from wstoken import IMP
+from wsbuiltin import END
 
 
 class Reader(object):
@@ -82,3 +83,11 @@ class Lexer(object):
 
     def __iter__(self):
         return iter(self.ins)
+
+
+
+
+
+
+
+

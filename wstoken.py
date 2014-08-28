@@ -37,7 +37,7 @@ SOP = {
 
 
 # Heap Operation
-# IMP:
+# IMP: [Tab][Tab]
 # Command     Meaning
 # [Space]     Store
 # [Tab]       Retrieve
@@ -80,7 +80,7 @@ AR = {
 # [Tab][Space]     Label     Jump to a label if the top of the stack is zero
 # [Tab][Tab]       Label     Jump to a label if the top of the stack is negative
 # [Tab][LF]          -       End a subroutine and transfer control back to the
-# caller
+#                            caller
 # [LF][LF]           -       End the program
 
 FC = {
@@ -131,9 +131,15 @@ IO = {
     "L": [None, None]
 }
 
+# IMP
+# [Space]      SOP
+# [Tab][Tab]   HOP
+# [Tab][Space] Arithmetic
+# [Tab][LF]    IO
+# [LF]         Control Flow
+
 IMP = {
     "S": [None, SOP],
     "T": [{"S": [AR, None], "T": [HOP, None], "L": [IO, None]}, None],
     "L": [None, FC]
 }
-

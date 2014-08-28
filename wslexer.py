@@ -1,7 +1,7 @@
 # encoding=utf-8
 import os
 from style import STL
-from wstoken import IMP
+from wstoken import IMP, LABEL, NUMBER
 
 
 class Reader(object):

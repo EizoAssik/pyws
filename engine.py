@@ -22,6 +22,7 @@ class PYWSEngine(object):
             ins = self.next()
             ins(self.stack, self.heap, self.labels, self)
             self.pc += 1
+        return self.stack, self.heap
 
     def next(self):
         ins = self.ins[self.pc]

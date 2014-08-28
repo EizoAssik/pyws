@@ -1,4 +1,5 @@
 # encoding=utf-8
+from wsbuiltin import MARK
 
 
 class PYWSEngine(object):
@@ -16,6 +17,9 @@ class PYWSEngine(object):
         self.stack = []
         self.call_stack = []
         self.heap = {}
+        for i, ins in enumerate(self.ins):
+            if isinstance(ins, MARK):
+                self.labels[ins.label] = i
 
     def run(self, debug=False):
         while self.has_next():
@@ -36,7 +40,8 @@ class PYWSEngine(object):
         self.pc = self.labels[label]
 
     def ret(self):
-        self.pc = self.call_stack.pop()
+        if self.call_stack:
+            self.pc = self.call_stack.pop()
 
     def end(self):
         self.meet_end = True

@@ -9,6 +9,7 @@ from engine import PYWSEngine
 
 class WSOperation:
     NAME = "WS"
+    SRC = ""
     ARGS = 0
 
     def __call__(self, stack, heap, labels, engine: PYWSEngine, *args,
@@ -58,6 +59,7 @@ class PUSH(StackOperation):
     S-[Space] Number Push the number onto the stack
     """
     NAME = "PUSH"
+    SRC = "SS"
     ARGS = 1
 
     def __init__(self, val):
@@ -72,6 +74,7 @@ class POP(StackOperation):
     S-[LF][LF] Discard the top item on the stack
     """
     NAME = "POP"
+    SRC = "SLL"
 
     def __call__(self, stack, heap, labels, engine, *args, **kwargs):
         stack.pop()
@@ -82,6 +85,7 @@ class TOP_COPY(StackOperation):
     S-[LF][Space] Duplicate the top item on the stack
     """
     NAME = "TOP-COPY"
+    SRC = "SLS"
 
     def __call__(self, stack, heap, labels, engine, *args, **kwargs):
         stack.append(stack[-1])
@@ -93,6 +97,7 @@ class NTH_COPY(StackOperation):
     onto the top of the stack
     """
     NAME = "NTH-COPY"
+    SRC = "STS"
     ARGS = 1
 
     def __init__(self, index):
@@ -107,6 +112,7 @@ class STACK_SKIP(StackOperation):
     S-[Tab][LF] Slide n items off the stack, keeping the top item
     """
     NAME = "STACK-SKIP"
+    SRC = "STL"
 
     def __init__(self, n):
         self.n = n
@@ -126,6 +132,7 @@ class TOP_SWAP(StackOperation):
     S-[LF][Tab] Swap the top two items on the stack
     """
     NAME = "TOP-SWAP"
+    SRC = "SLT"
 
     def __call__(self, stack, heap, *args, **kwargs):
         stack[-1], stack[-2] = stack[-2], stack[-1]
@@ -145,6 +152,7 @@ class STORE(HeapOperation):
     TT-[Space] Store
     """
     NAME = "STORE"
+    SRC = "TTS"
 
     def __call__(self, stack, heap, labels, engine, *args, **kwargs):
         val = stack.pop()
@@ -158,6 +166,7 @@ class RETRIEVE(HeapOperation):
     """
 
     NAME = "RETRIEVE"
+    SRC = "TTT"
 
     def __call__(self, stack, heap, labels, engine, *args, **kwargs):
         key = stack.pop()
@@ -190,6 +199,7 @@ class ADD(AlgebraOperation):
     TS-[Space][Space]    Addition
     """
     NAME = "ADD"
+    SRC = "TSSS"
 
     def __init__(self):
         super().__init__()
@@ -201,6 +211,7 @@ class SUB(AlgebraOperation):
     TS-[Space][Tab]    Subtraction
     """
     NAME = "SUB"
+    SRC = "RSST"
 
     def __init__(self):
         super().__init__()
@@ -212,6 +223,7 @@ class MUL(AlgebraOperation):
     TS-[Space][LF]    Multiplication
     """
     NAME = "MUL"
+    SRC = "TSSL"
 
     def __init__(self):
         super().__init__()
@@ -223,6 +235,7 @@ class DIV(AlgebraOperation):
     TS-[Tab][Space]    Integer Division
     """
     NAME = "DIV"
+    SRC = "TSTS"
 
     def __init__(self):
         super().__init__()
@@ -234,6 +247,7 @@ class MOD(AlgebraOperation):
     TS-[Tab][Tab]    Modulo
     """
     NAME = "MOD"
+    SRC = "TSTT"
 
     def __init__(self):
         super().__init__()
@@ -252,6 +266,7 @@ class PRINT_CHAR(IOOperation):
     TL-[Space][Space] Output the character at the top of the stack
     """
     NAME = "PRINT-CHAR"
+    SRC = "TLSS"
 
     def __call__(self, stack, heap, labels, engine, *args, **kwargs):
         sys.stdout.write(chr(stack.pop()))
@@ -262,6 +277,7 @@ class PRINT_NUM(IOOperation):
     TL-[Space][Tab] Output the number at the top of the stack
     """
     NAME = "PRINT-NUM"
+    SRC = "TLST"
 
     def __call__(self, stack, heap, labels, engine, *args, **kwargs):
         sys.stdout.write(str(stack.pop()))
@@ -274,6 +290,7 @@ class READ_CHAR_TO_HEAP(IOOperation):
     """
 
     NAME = "READ-CHAR-TO-HEAP"
+    SRC = "TLTS"
 
     def __call__(self, stack, heap, labels, engine, *args, **kwargs):
         key = stack.pop()
@@ -289,6 +306,7 @@ class READ_NUM_TO_HEAP(IOOperation):
     """
 
     NAME = "READ-NUM-TO-HEAP"
+    SRC = "TLTT"
 
     def __call__(self, stack, heap, labels, engine, *args, **kwargs):
         key = stack.pop()
@@ -312,6 +330,7 @@ class MARK(FlowOperation):
     L-[Space][Space] Mark a location in the program
     """
     NAME = "MARK"
+    SRC = "LSS"
     ARGS = 1
 
     def __init__(self, label):
@@ -326,6 +345,7 @@ class CALL(FlowOperation):
     L-[Space][Tab] Call a subroutine
     """
     NAME = "CALL"
+    SRC = "LST"
     ARGS = 1
 
     def __init__(self, label):
@@ -341,6 +361,7 @@ class JUMP(FlowOperation):
     L-[Space][LF] Jump unconditionally to a label
     """
     NAME = "JUMP"
+    SRC = "LSL"
     ARGS = 1
 
     def __init__(self, label):
@@ -356,6 +377,7 @@ class JS(FlowOperation):
     L-[Tab][Tab] Jump to a label if the top of the stack is negative
     """
     NAME = "JS"
+    SRC = "LTT"
     ARGS = 1
 
     def __init__(self, label):
@@ -373,6 +395,7 @@ class JZ(FlowOperation):
     L-[Tab][Space] Jump to a label if the top of the stack is zero
     """
     NAME = "JZ"
+    SRC = "LTS"
     ARGS = 1
 
     def __init__(self, label):
@@ -390,6 +413,7 @@ class RETURN(FlowOperation):
     L-[Tab][LF] End a subroutine and transfer control back to the caller
     """
     NAME = "RETURN"
+    SRC = "LTL"
 
     def __call__(self, stack, heap, labels, engine: PYWSEngine, *args,
                  **kwargs):
@@ -401,6 +425,7 @@ class END(FlowOperation):
     L-[LF][LF] End the program
     """
     NAME = "END"
+    SRC = "LLL"
 
     def __call__(self, stack, heap, labels, engine: PYWSEngine, *args,
                  **kwargs):
@@ -411,16 +436,26 @@ class WSLiteral(object):
     NAME = "LITERAL"
 
     def __init__(self, literal: str):
-        self.literal = literal.translate({ord('S'): '0', ord('T'): '1'})
-        self.val = self.eval_literal()
+        if isinstance(literal, str):
+            self.literal = literal.translate({ord('S'): '0', ord('T'): '1'})
+            self.val = self.eval_literal()
+        elif isinstance(literal, WSLiteral):
+            self.val = literal.val
+            self.literal = literal.literal
+        elif isinstance(literal, int):
+            self.literal = bin(literal)[2:]
+            self.val = literal
+        else:
+            raise TypeError('Cannot convert \'{}\' to {}'
+                            .format(repr(literal), self.NAME))
 
     def __hash__(self):
-        return hash(self.literal)
+        return hash(self.val)
 
     def __eq__(self, other):
+        if isinstance(other, int) and other == self.val:
+            return True
         if type(self) != type(other):
-            return False
-        if self.literal != other.literal:
             return False
         if self.val != other.val:
             return False

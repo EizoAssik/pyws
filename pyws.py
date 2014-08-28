@@ -1,11 +1,12 @@
 # encoding=utf-8
 
-from wslexer import Reader, Lexer
+from wslexer import Reader, Lexer, AssemblerReader
+from assembler import Assembler
 from style import STL
-from wsbuiltin import WSOperation, WSLiteral
+from wsbuiltin import WSLiteral
 
 
-def wscompiler(src: str, style: dict=STL, strict=False):
+def compiler(src: str, style: dict=STL, strict=False):
     ins = []
     ins_buff = None
     for token in Lexer(Reader(src, style), strict):
@@ -22,3 +23,8 @@ def wscompiler(src: str, style: dict=STL, strict=False):
 
 def disassembler(ins, sep=''):
     return sep.join(map(repr, ins))
+
+
+def assembler(src, sep=';', arg_sep=';'):
+    a = Assembler(AssemblerReader(src), arg_sep=arg_sep)
+    return sep.join(a.src)

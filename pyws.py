@@ -1,12 +1,15 @@
 # encoding=utf-8
 
-from wslexer import Reader, Lexer, AssemblerReader
-from assembler import Assembler
-from style import STL
+import argparse
+import style as wsstyle
+
+from wslexer import Reader, Lexer
+from assembler import Assembler, AssemblerReader
+from engine import PYWSEngine
 from wsbuiltin import WSLiteral
 
 
-def compiler(src: str, style: dict=STL, strict=False):
+def compiler(src: str, style: dict=wsstyle.STL, strict=False):
     ins = []
     ins_buff = None
     for token in Lexer(Reader(src, style), strict):
@@ -27,4 +30,46 @@ def disassembler(ins, sep=''):
 
 def assembler(src, sep=';', arg_sep=';'):
     a = Assembler(AssemblerReader(src), arg_sep=arg_sep)
-    return sep.join(a.src)
+    return sep.join(a.src), a.ins
+
+
+def main():
+    argparser = argparse.ArgumentParser(
+        description="PYWS, a WhiteSpace interpreter in Python.")
+    argparser.add_argument('source', help='source string or file')
+    argparser.add_argument('-A', dest='assemble', action='store_true',
+                           default=False,
+                           help='if given, use assembler instant of compiler')
+    argparser.add_argument('--strict', dest='strict', default=False,
+                           action='store_true',
+                           help='use strict mode, default: False')
+    argparser.add_argument('--style', dest='style', default='STL',
+                           help='code style, STL, ORIGIN or GMH')
+    argparser.add_argument('--sep', dest='sep', default=';',
+                           help='separator for assembled code between operator')
+    argparser.add_argument('--arg-sep', dest='arg_sep', default=';',
+                           help='separator for assembled code between argument')
+    args = argparser.parse_args()
+    if args.assemble:
+        code, ins = assembler(args.source, args.sep, args.arg_sep)
+        print('=' * 16)
+        print('Compile result:')
+        print(code)
+        stack, heap = PYWSEngine(ins).run()
+        print('=' * 16)
+        print('STACK: ', stack)
+        print('HEAP: ', heap)
+    else:
+        if args.style in dir(wsstyle):
+            style = getattr(wsstyle, args.style)
+        else:
+            style = wsstyle.STL
+        ins = compiler(args.source, style, args.strict)
+        stack, heap = PYWSEngine(ins).run()
+        print('=' * 16)
+        print('STACK: ', stack)
+        print('HEAP: ', heap)
+
+
+if __name__ == '__main__':
+    main()

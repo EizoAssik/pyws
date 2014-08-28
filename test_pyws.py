@@ -4,6 +4,7 @@ from wsbuiltin import ADD, PUSH, SUB
 import wsbuiltin
 from wslexer import Reader
 from pyws import wscompiler, disassembler
+from engine import PYWSEngine
 
 
 def test_source():
@@ -19,10 +20,11 @@ def test_iter():
 def test_compiler():
     assert [ADD()] == wscompiler('TSSS')
     assert [ADD(), SUB()] == wscompiler('TSSSTSST')
+    assert [PUSH(wsbuiltin.NUMBER('STS'))] == wscompiler('SSSTSL')
 
 
 def test_repr():
-    assert "PUSH 3" == repr(PUSH(3))
+    assert "PUSH <NUMBER 011/3>" == repr(PUSH(wsbuiltin.NUMBER('STT')))
 
 
 def test_disassembler():
@@ -40,3 +42,7 @@ def test_literal():
     assert 2 == 5 // wsbuiltin.NUMBER("STS")
     assert 9 == 10 + wsbuiltin.NUMBER("TS")
     assert 1 == 3 % wsbuiltin.NUMBER("STS")
+
+
+def test_engine():
+    assert [4], {} == PYWSEngine(wscompiler("SSSTLSSSTTLTSSS")).run()

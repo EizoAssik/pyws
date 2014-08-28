@@ -1,8 +1,6 @@
-# To ignore manual tests and generated files
+# ignore pywsa for test
 
-*_manual.py
-reader/gen/*
-
+*.pywsa
 
 # Created by http://www.gitignore.io
 

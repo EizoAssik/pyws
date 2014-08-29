@@ -475,9 +475,7 @@ class WSLiteral(object):
         return True
 
     def __repr__(self):
-        return '<{} {}/{}>'.format(self.NAME,
-                                   self.literal,
-                                   self.val)
+        return str(self.val)
 
     def __str__(self):
         return self.__repr__()

@@ -23,18 +23,19 @@ def test_compiler():
 
 
 def test_repr():
-    assert "PUSH <NUMBER 011/3>" == repr(PUSH(NUMBER('STT')))
+    assert "PUSH 3" == repr(PUSH(NUMBER('STT')))
 
 
 def test_disassembler():
     assert "ADDSUB" == disassembler(compiler("TSSSTSST"))
     assert "ADD-SUB" == disassembler(compiler("TSSSTSST"), sep='-')
+    assert "PUSH -10;DUP" == disassembler(compiler("SSTSTSTLSLS"), sep=';')
 
 
 def test_literal():
-    assert "<NUMBER 1001/-6>" == repr(NUMBER('TSST'))
-    assert "<NUMBER 01011/11>" == repr(NUMBER('STSTT'))
-    assert "<LABEL 1001/9>" == repr(LABEL('TSST'))
+    assert "-6" == repr(NUMBER('TSST'))
+    assert "11" == repr(NUMBER('STSTT'))
+    assert "9" == repr(LABEL('TSST'))
     assert 3 == NUMBER("ST") + 2
     assert 0 == 1 - NUMBER("ST")
     assert 6 == NUMBER("STT") * NUMBER("STS")
@@ -89,7 +90,3 @@ def test_wsXpy():
     assert 6 == ws_run("SSSTTL;SSSTSL;LLSSTL")[0].pop()
     # PUSH 03 ; PUSH 02 ; PYFN -1
     assert 5 == ws_run("SSSTTL;SSSTSL;LLSTTL")[0].pop()
-
-
-if __name__ == '__main__':
-    test_assembler()

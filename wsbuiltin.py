@@ -45,6 +45,10 @@ class WSOperation:
             return False
         return True
 
+    @classmethod
+    def ir(cls):
+        return cls.NAME
+
 
 class StackOperation(WSOperation):
     """
@@ -292,10 +296,13 @@ class RCHR(IOOperation):
     SRC = "TLTS"
 
     def __call__(self, stack, heap, labels, engine, *args, **kwargs):
+        while len(engine.buffer) == 0:
+            engine.buffer = list(input() + '\n')
+        c = engine.buffer.pop(0)
         key = stack.pop()
-        s = input()
-        val = ord(s[0])
-        heap[key] = val
+        heap[key] = ord(c)
+        if kwargs.get('debug', False):
+            print('STORE', '{:03d} ({!r})'.format(ord(c), c), '->', key)
 
 
 class RNUM(IOOperation):
@@ -308,10 +315,11 @@ class RNUM(IOOperation):
     SRC = "TLTT"
 
     def __call__(self, stack, heap, labels, engine, *args, **kwargs):
+        s = int(input())
         key = stack.pop()
-        s = input()
-        val = ord(s[0])
-        heap[key] = val
+        heap[key] = s
+        if kwargs.get('debug', False):
+            print('STORE', s, '->', key)
 
 
 class FlowOperation(WSOperation):
@@ -353,6 +361,7 @@ class CALL(FlowOperation):
     def __call__(self, stack, heap, labels, engine, *args,
                  **kwargs):
         engine.call(self.label)
+
 
 class PYFN(FlowOperation):
     """
@@ -483,9 +492,15 @@ class WSLiteral(object):
     def eval_literal(self):
         return int(self.literal, base=2)
 
+    def ir(self):
+        pass
+
 
 class LABEL(WSLiteral):
     NAME = "LABEL"
+
+    def ir(self):
+        return '0' + str(self.val)
 
 
 class NUMBER(WSLiteral):
@@ -539,4 +554,9 @@ class NUMBER(WSLiteral):
 
     def __rmod__(self, other):
         return other.__mod__(self.val)
+
+    def ir(self):
+        if self.val < 0:
+            return str(self.val)
+        return '0{}'.format(self.val)
 

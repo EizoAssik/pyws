@@ -93,7 +93,7 @@ def main():
     argparser.add_argument('--strict', dest='strict', default=False,
                            action='store_true',
                            help='use strict mode, default: False')
-    argparser.add_argument('--style', dest='style', default='STL',
+    argparser.add_argument('--style', dest='style', default='ORIGIN',
                            help='code style, STL, ORIGIN or GMH')
     argparser.add_argument('--sep', dest='sep', default=';',
                            help='separator for assembled code between operator')

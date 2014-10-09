@@ -6,18 +6,19 @@ import style as wsstyle
 from wslexer import Reader, Lexer
 from assembler import Assembler, AssemblerReader
 from engine import PYWSEngine, PYFN_MAP
-from wsbuiltin import WSLiteral, LABEL
+from wsbuiltin import WSLiteral, LABEL, WSOperation
 
 
-def compiler(src: str, style: dict=wsstyle.STL, strict=False):
+def op_compiler(src: str, style: dict=wsstyle.STL, strict=False):
     """
-    Compile STL codes into callable WSOperations
+    Compile WhiteSpace codes into callable WSOperations
     """
     ins = []
     ins_buff = None
     for token in Lexer(Reader(src, style), strict):
         if hasattr(token, 'ARGS'):
             if token.ARGS == 0:
+                # dealing operators
                 ins.append(token())
             else:
                 ins_buff = token
@@ -27,10 +28,30 @@ def compiler(src: str, style: dict=wsstyle.STL, strict=False):
     return ins
 
 
+def ir_compiler(src: str, style: dict=wsstyle.STL, strict=False):
+    """
+    Compile WhiteSpace codes into WhiteSpace IR
+    """
+    ir = []
+    last_operator = None
+    for token in Lexer(Reader(src, style), strict):
+        if hasattr(token, 'ARGS'):
+            if token.ARGS == 0:
+                # dealing stay-alone operators
+                ir.append(token.ir())
+            else:
+                last_operator = token
+                continue
+        if isinstance(token, WSLiteral):
+            ir.append('{} {}'.format(last_operator.ir(), token.ir()))
+        ir.append('\n')
+    return ''.join(ir).strip()
+
+
 def disassembler(ins, sep=''):
     """
     Give a list of callable WSOperators,
-    return the wsa notations, which can be read back again
+    return the WhiteSpace IR, which can be read back again
     by assembler
     """
     return sep.join(map(repr, ins))
@@ -38,11 +59,25 @@ def disassembler(ins, sep=''):
 
 def assembler(src, sep=';', arg_sep=';'):
     """
-    Give a wsa file's path or a string contains wsa,
+    Give a WhiteSpace IR file's path or a string contains the IR code,
     return 2 values, STL code and instructions
     """
     a = Assembler(AssemblerReader(src), arg_sep=arg_sep)
     return sep.join(a.src), a.ins
+
+
+def dump_heap(heap):
+    s = ['{']
+    for key in heap:
+        val = heap[key]
+        if isinstance(val, WSLiteral):
+            val = val.val
+        if 0 <= val <= 255:
+            s.append('\t{} => {} ({!r})'.format(key, val, chr(val)))
+        else:
+            s.append('\t{} => {}'.format(key, val))
+    s.append('}')
+    return '\n'.join(s)
 
 
 def main():
@@ -52,6 +87,9 @@ def main():
     argparser.add_argument('-A', dest='assemble', action='store_true',
                            default=False,
                            help='if given, use assembler instant of compiler')
+    argparser.add_argument('--IR', dest='ir', action='store_true',
+                           default=False,
+                           help='if given, compile to WSIR instant of run it')
     argparser.add_argument('--strict', dest='strict', default=False,
                            action='store_true',
                            help='use strict mode, default: False')
@@ -61,26 +99,41 @@ def main():
                            help='separator for assembled code between operator')
     argparser.add_argument('--arg-sep', dest='arg_sep', default=';',
                            help='separator for assembled code between argument')
+    argparser.add_argument('--debug', dest='debug', default=False,
+                           action='store_true',
+                           help='if given, run with debug mode')
+    argparser.add_argument('--traceall', dest='traceall', default=False,
+                           action='store_true',
+                           help='if given, store heap and stack after EACH'
+                                'operator')
     args = argparser.parse_args()
     if args.assemble:
         code, ins = assembler(args.source, args.sep, args.arg_sep)
         print('=' * 16)
         print('Compile result:')
         print(code)
-        stack, heap = PYWSEngine(ins).run()
-        print('\n' + '=' * 16)
-        print('STACK: ', stack)
-        print('HEAP: ', heap)
+        stack, heap = PYWSEngine(ins).run(debug=args.debug,
+                                          traceall=args.traceall)
+        if args.debug:
+            print('=' * 16)
+            print('STACK: ', stack)
+            print(' HEAP: ', '\n', dump_heap(heap))
     else:
         if args.style in dir(wsstyle):
             style = getattr(wsstyle, args.style)
         else:
             style = wsstyle.STL
-        ins = compiler(args.source, style, args.strict)
-        stack, heap = PYWSEngine(ins).run()
-        print('=' * 16)
-        print('STACK: ', stack)
-        print('HEAP: ', heap)
+        if args.ir:
+            ir_code = ir_compiler(args.source, style, args.strict)
+            print(ir_code)
+        else:
+            ins = op_compiler(args.source, style, args.strict)
+            stack, heap = PYWSEngine(ins).run(debug=args.debug,
+                                              traceall=args.traceall)
+            if args.debug:
+                print('=' * 16)
+                print('STACK: ', stack)
+                print(' HEAP: ', '\n', dump_heap(heap))
 
 
 def wsfunction(style=wsstyle.STL, strict=False, debug=False,
@@ -113,9 +166,10 @@ def wsfunction(style=wsstyle.STL, strict=False, debug=False,
 
     See test_pyws.test_wsXpy for more cases.
     """
+
     def _wsdef(func):
         src = func.__doc__
-        ins = compiler(src, style, strict)
+        ins = op_compiler(src, style, strict)
 
         def _wsfunc(*args, **kwargs):
             engine = PYWSEngine(ins, stack=args, heap=kwargs)

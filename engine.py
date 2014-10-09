@@ -20,6 +20,7 @@ class PYWSEngine(object):
         self.meet_end = False
         self.labels = {}
         self.history = []
+        self.buffer = []
         if stack:
             self.stack = list(stack)
         else:
@@ -34,16 +35,16 @@ class PYWSEngine(object):
             if isinstance(ins, MARK):
                 self.labels[ins.label] = i
 
-    def run(self, debug=False):
+    def run(self, debug=False, traceall=False):
         """
         If debug is True, log history after every operation
         """
-        if debug:
+        if traceall:
             self.append_history(self.pc, None, self.stack, self.heap)
         while self.has_next():
             ins = self.next()
-            ins(self.stack, self.heap, self.labels, self)
-            if debug:
+            ins(self.stack, self.heap, self.labels, self, debug=debug)
+            if traceall:
                 self.append_history(self.pc, None, self.stack, self.heap)
             self.pc += 1
         return self.stack, self.heap

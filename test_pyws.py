@@ -2,7 +2,8 @@
 import style
 from wsbuiltin import ADD, PUSH, SUB, NUMBER, LABEL
 from wslexer import Reader
-from pyws import compiler, disassembler, assembler, wsfunction, wsmark
+from pyws import op_compiler, disassembler, assembler, wsfunction, wsmark, \
+    ir_compiler
 from engine import PYWSEngine
 
 
@@ -17,9 +18,14 @@ def test_iter():
 
 
 def test_compiler():
-    assert [ADD()] == compiler('TSSS')
-    assert [ADD(), SUB()] == compiler('TSSSTSST')
-    assert [PUSH(NUMBER('STS'))] == compiler('SSSTSL')
+    assert [ADD()] == op_compiler('TSSS')
+    assert [ADD(), SUB()] == op_compiler('TSSSTSST')
+    assert [PUSH(NUMBER('STS'))] == op_compiler('SSSTSL')
+
+
+def test_ir_compiler():
+    assert "ADD" == ir_compiler("TSSS")
+    assert "PUSH 01\nPUSH 03\nADD" == ir_compiler("SSSTL;SSSTTL;TSSS")
 
 
 def test_repr():
@@ -27,9 +33,9 @@ def test_repr():
 
 
 def test_disassembler():
-    assert "ADDSUB" == disassembler(compiler("TSSSTSST"))
-    assert "ADD-SUB" == disassembler(compiler("TSSSTSST"), sep='-')
-    assert "PUSH -10;DUP" == disassembler(compiler("SSTSTSTLSLS"), sep=';')
+    assert "ADDSUB" == disassembler(op_compiler("TSSSTSST"))
+    assert "ADD-SUB" == disassembler(op_compiler("TSSSTSST"), sep='-')
+    assert "PUSH -10;DUP" == disassembler(op_compiler("SSTSTSTLSLS"), sep=';')
 
 
 def test_literal():
@@ -52,8 +58,8 @@ def test_assembler():
     assert "SS;SSL;SS;STL" == assembler("PUSHS [0,1]")[0]
 
 
-def ws_run(src: str) -> ([], {}):
-    return PYWSEngine(compiler(src)).run()
+def ws_run(src: str, style=style.STL) -> ([], {}):
+    return PYWSEngine(op_compiler(src, style=style)).run()
 
 
 def test_engine():
@@ -74,10 +80,12 @@ def test_engine():
 def add(a, b):
     """TSSS"""
 
+
 @wsmark("TT")
 @wsfunction()
 def wsadd(a, b):
     """TSSS"""
+
 
 @wsmark("ST")
 def mul(a, b):

@@ -1,6 +1,7 @@
 # ignore pywsa for test
 
 *.wsir
+*.ws
 
 # Created by http://www.gitignore.io
 

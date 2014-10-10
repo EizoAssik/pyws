@@ -29,5 +29,5 @@ class PUSHS(SyntaxSugar):
             arg = arg.strip('\"')
             if rev:
                 arg = arg[::-1]
-            return list(map(lambda i: ('PUSH', '\'' + i), arg))
+            return list(map(lambda i: ('PUSH', str(ord(i))), arg))
         raise SyntaxError("Cannot expand PUSHS {}".format(arg))

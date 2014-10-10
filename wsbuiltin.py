@@ -6,7 +6,7 @@ import operator
 import sys
 
 
-class WSOperation:
+class WSOperation(object):
     NAME = "WS"
     SRC = ""
     ARGS = 0
@@ -205,7 +205,7 @@ class ADD(AlgebraOperation):
     SRC = "TSSS"
 
     def __init__(self):
-        super().__init__()
+        super(ADD, self).__init__()
         self.op = operator.add
 
 
@@ -217,7 +217,7 @@ class SUB(AlgebraOperation):
     SRC = "RSST"
 
     def __init__(self):
-        super().__init__()
+        super(SUB, self).__init__()
         self.op = operator.sub
 
 
@@ -229,7 +229,7 @@ class MUL(AlgebraOperation):
     SRC = "TSSL"
 
     def __init__(self):
-        super().__init__()
+        super(MUL, self).__init__()
         self.op = operator.mul
 
 
@@ -241,7 +241,7 @@ class DIV(AlgebraOperation):
     SRC = "TSTS"
 
     def __init__(self):
-        super().__init__()
+        super(DIV, self).__init__()
         self.op = operator.floordiv
 
 
@@ -253,7 +253,7 @@ class MOD(AlgebraOperation):
     SRC = "TSTT"
 
     def __init__(self):
-        super().__init__()
+        super(MOD, self).__init__()
         self.op = operator.mod
 
 
@@ -297,7 +297,7 @@ class RCHR(IOOperation):
 
     def __call__(self, stack, heap, labels, engine, *args, **kwargs):
         while len(engine.buffer) == 0:
-            engine.buffer = list(input() + '\n')
+            engine.buffer = list(raw_input() + '\n')
         c = engine.buffer.pop(0)
         key = stack.pop()
         heap[key] = ord(c)
@@ -457,9 +457,9 @@ class END(FlowOperation):
 class WSLiteral(object):
     NAME = "LITERAL"
 
-    def __init__(self, literal: str):
+    def __init__(self, literal):
         if isinstance(literal, str):
-            self.literal = literal.translate({ord('S'): '0', ord('T'): '1'})
+            self.literal = literal.replace('S', '0').replace('T', '1')
             self.val = self.eval_literal()
         elif isinstance(literal, WSLiteral):
             self.val = literal.val

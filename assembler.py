@@ -35,7 +35,9 @@ class AssemblerReader(object):
             line = line.strip()
             if not line or line.startswith('#'):
                 continue
-            ins, *remains = line.split(sep=' ', maxsplit=1)
+            _pieces = line.split(' ', 1)
+            ins = _pieces[0]
+            remains = _pieces[1:]
             if remains:
                 if '#' in remains:
                     remains = remains[:remains.index('#')]
@@ -100,10 +102,10 @@ class Assembler(object):
                 negative = True
             literal = bin(int(literal))[2:]
         if negative:
-            literal = '1' + literal.translate({ord('0'): '1', ord('1'): '0'})
+            literal = '1' + literal
         else:
             literal = '0' + literal
-        return literal.translate({ord('0'): 'S', ord('1'): 'T'})
+        return literal.replace('0', 'S').replace('1', 'T')
 
     @staticmethod
     def literal_label(literal):

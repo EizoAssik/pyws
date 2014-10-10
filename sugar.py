@@ -14,7 +14,7 @@ class PUSHS(SyntaxSugar):
     NAME = "PUSHS"
 
     @staticmethod
-    def expand(arg: str):
+    def expand(arg):
         rev = False
         arg = arg.strip()
         if arg.startswith('~'):

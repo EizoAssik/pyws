@@ -10,7 +10,7 @@ class Reader(object):
     This is the source code reader for WhiteSpace.
     """
 
-    def __init__(self, source: str, style: dict=STL):
+    def __init__(self, source, style=STL):
         if not isinstance(source, str):
             raise TypeError("{} is neither a string containing source code "
                             "nor a path to source file".format(str(source)))
@@ -33,7 +33,7 @@ class Lexer(object):
     This is the lexer for WhiteSpace
     """
 
-    def __init__(self, reader: Reader, strict=False):
+    def __init__(self, reader, strict=False):
         self.reader = reader
         self.strict = strict
         self.ins = self.lex()

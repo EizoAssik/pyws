@@ -12,7 +12,7 @@ class PYWSEngine(object):
     The execute engine for PYWS.
     """
 
-    def __init__(self, ins: list, stack=None, heap=None):
+    def __init__(self, ins, stack=None, heap=None):
         # instruction is a list of callable that always return None
         self.pc = 0
         self.ins = ins

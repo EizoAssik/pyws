@@ -58,7 +58,7 @@ def test_assembler():
     assert "SS;SSL;SS;STL" == assembler("PUSHS [0,1]")[0]
 
 
-def ws_run(src: str, style=style.STL) -> ([], {}):
+def ws_run(src, style=style.STL):
     return PYWSEngine(op_compiler(src, style=style)).run()
 
 

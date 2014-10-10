@@ -9,7 +9,7 @@ from engine import PYWSEngine, PYFN_MAP
 from wsbuiltin import WSLiteral, LABEL, WSOperation
 
 
-def op_compiler(src: str, style: dict=wsstyle.STL, strict=False):
+def op_compiler(src, style=wsstyle.STL, strict=False):
     """
     Compile WhiteSpace codes into callable WSOperations
     """
@@ -28,7 +28,7 @@ def op_compiler(src: str, style: dict=wsstyle.STL, strict=False):
     return ins
 
 
-def ir_compiler(src: str, style: dict=wsstyle.STL, strict=False):
+def ir_compiler(src, style=wsstyle.STL, strict=False):
     """
     Compile WhiteSpace codes into WhiteSpace IR
     """
@@ -188,7 +188,7 @@ def wsfunction(style=wsstyle.STL, strict=False, debug=False,
     return _wsdef
 
 
-def wsmark(label: str):
+def wsmark(label):
     """
     This decorator will register given function to engine.PYFN_MAP
     using key `lebel`, a LABLE object or a string to initialize a new LABEL

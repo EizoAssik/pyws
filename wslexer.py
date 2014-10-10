@@ -50,7 +50,9 @@ class Lexer(object):
                     literal_buffer.append(c)
                 else:
                     ins.append(literal(''.join(literal_buffer)))
-                    literal_buffer.clear()
+                    # use this instead of literal_buffer.clear()
+                    # so that this will work in PyPy3
+                    literal_buffer = []
                     literal = None
                 continue
             if isinstance(status, dict):

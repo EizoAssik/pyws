@@ -41,12 +41,15 @@ class PYWSEngine(object):
         """
         if traceall:
             self.append_history(self.pc, None, self.stack, self.heap)
-        while self.has_next():
-            ins = self.next()
-            ins(self.stack, self.heap, self.labels, self, debug=debug)
-            if traceall:
-                self.append_history(self.pc, None, self.stack, self.heap)
-            self.pc += 1
+        try:
+            while self.has_next():
+                ins = self.next()
+                ins(self.stack, self.heap, self.labels, self, debug=debug)
+                if traceall:
+                    self.append_history(self.pc, None, self.stack, self.heap)
+                self.pc += 1
+        except KeyboardInterrupt:
+            pass
         return self.stack, self.heap
 
     def append_history(self, pc, ins, stack, heap):

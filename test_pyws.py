@@ -25,7 +25,7 @@ def test_compiler():
 
 def test_ir_compiler():
     assert "ADD" == ir_compiler("TSSS")
-    assert "PUSH 01\nPUSH 03\nADD" == ir_compiler("SSSTL;SSSTTL;TSSS")
+    assert "PUSH 1\nPUSH 3\nADD" == ir_compiler("SSSTL;SSSTTL;TSSS")
 
 
 def test_repr():
@@ -35,18 +35,18 @@ def test_repr():
 def test_disassembler():
     assert "ADDSUB" == disassembler(op_compiler("TSSSTSST"))
     assert "ADD-SUB" == disassembler(op_compiler("TSSSTSST"), sep='-')
-    assert "PUSH -10;DUP" == disassembler(op_compiler("SSTSTSTLSLS"), sep=';')
+    assert "PUSH -10;DUP" == disassembler(op_compiler("SSTTSTSLSLS"), sep=';')
 
 
 def test_literal():
-    assert "-6" == repr(NUMBER('TSST'))
+    assert "-6" == repr(NUMBER('TTTS'))
     assert "11" == repr(NUMBER('STSTT'))
     assert "9" == repr(LABEL('TSST'))
     assert 3 == NUMBER("ST") + 2
     assert 0 == 1 - NUMBER("ST")
     assert 6 == NUMBER("STT") * NUMBER("STS")
     assert 2 == 5 // NUMBER("STS")
-    assert 9 == 10 + NUMBER("TS")
+    assert 9 == 10 + NUMBER("TT")
     assert 1 == 3 % NUMBER("STS")
     assert hash(NUMBER("STS")) == hash(NUMBER("STS"))
     assert NUMBER("STSS") == NUMBER("STSS")

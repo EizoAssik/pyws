@@ -509,9 +509,13 @@ class NUMBER(WSLiteral):
     def eval_literal(self):
         negative = self.literal[0] == '1'
         val = self.literal[1:]
-        if negative:
-            val = val.translate({ord('0'): '1', ord('1'): '0'})
         return (-1 if negative else 1) * int(val, base=2)
+
+    def dump_literal(self):
+        if self.val < 0:
+            return '1' + bin(-self.val)[2:].translate(
+                {ord('0'): '1', ord('1'): '0'})
+        return '0' + bin(self.val)[2:]
 
     def __int__(self):
         return self.val
@@ -556,7 +560,5 @@ class NUMBER(WSLiteral):
         return other.__mod__(self.val)
 
     def ir(self):
-        if self.val < 0:
-            return str(self.val)
-        return '0{}'.format(self.val)
+        return self.val
 
